@@ -21,10 +21,10 @@ Here are some visualization results:
 <a href="#day15">day15</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day15a.gif" height="200">
 <img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day15b.gif" height="200">
 <br/>
-<a href="#day17">day17</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day17.png" height="180">
-<a href="#day18">day18</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day18a.gif" height="240">
-<img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day18b.gif" height="240">
-<a href="#day19">day19</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day19b.png" height="200">
+<a href="#day17">day17</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day17.png" height="160">
+<a href="#day18">day18</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day18a.gif" height="220">
+<img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day18b.gif" height="220">
+<a href="#day19">day19</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day19b.png" height="180">
 <br/>
 <a href="#day20">day20</a><img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day20a.gif" height="250">
 <img src="https://github.com/hhoppe/advent_of_code_2019/raw/main/results/day20b.gif" height="250">
