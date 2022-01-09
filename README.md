@@ -8,7 +8,7 @@ Mostly completed in March 2021.
 
 In this notebook, I explore both "compact" and "fast" code versions, along with data visualizations.
 
-I was able to speed up all the solutions such that the [cumulative time](#timings) across all 25 puzzles is about 10 s.
+I was able to speed up all the solutions such that the [cumulative time](#timings) across all 25 puzzles is about 5 s.
 (For some puzzles, I had to resort to the `numba` package to jit-compile Python functions.)
 
 Here are some visualization results:
