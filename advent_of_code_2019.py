@@ -55,8 +55,6 @@ import random
 import re
 import sys
 import textwrap
-from typing import Any, Callable, Dict, List, Mapping
-from typing import Optional, Set, Tuple, Union
 
 import advent_of_code_hhoppe  # https://github.com/hhoppe/advent-of-code-hhoppe/blob/main/advent_of_code_hhoppe/__init__.py
 import advent_of_code_ocr  # https://github.com/bsoyka/advent-of-code-ocr/blob/main/advent_of_code_ocr/__init__.py
@@ -79,7 +77,8 @@ YEAR = 2019
 PROFILE = 'google.Hugues_Hoppe.965276'
 # PROFILE = 'github.hhoppe.1452460'
 TAR_URL = f'https://github.com/hhoppe/advent_of_code_{YEAR}/raw/main/data/{PROFILE}.tar.gz'
-hh.run(f"if [ ! -d data/{PROFILE} ]; then (mkdir -p data && cd data && wget -q {TAR_URL} && tar xzf {PROFILE}.tar.gz); fi")
+hh.run(f"if [ ! -d data/{PROFILE} ]; then (mkdir -p data && cd data &&"
+       f" wget -q {TAR_URL} && tar xzf {PROFILE}.tar.gz); fi")
 INPUT_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}_input.txt'
 ANSWER_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
@@ -351,7 +350,7 @@ Machine = Machine_numba if 'numba' in globals() else Machine_py
 if 0:  # For quick timing test while developing.
   puzzle = advent.puzzle(day=13, silent=True)
 
-  def run_game(s, verbose=False):
+  def run_game(s):
     machine = Machine(s)
     machine.mem[0] = 2  # set free play
     score = None
@@ -368,7 +367,6 @@ if 0:  # For quick timing test while developing.
       joystick = np.sign(last_yx[4][1] - last_yx[3][1])  # ball.x - paddle.x
       input = [joystick]
     return score
-
 
   puzzle.verify(2, run_game)  # ~60 ms with Machine_numba; ~3 s without.
 
@@ -441,7 +439,7 @@ def process1(s, part2=False):  # Original implementation before Machine.
     while True:
       if l[i] == 99:
         break
-      elif l[i] == 1:
+      if l[i] == 1:
         l[l[i + 3]] = l[l[i + 1]] + l[l[i + 2]]
         i += 4
       elif l[i] == 2:
@@ -601,9 +599,7 @@ def process1(s, part2=False):  # Using a sparse map on 2D positions.
 
   if not part2:
     return min(abs(y) + abs(x) for y, x in counts1 if (y, x) in counts2)
-  else:
-    return min((counts1[pos] + counts2[pos])
-               for pos in counts1 if pos in counts2)
+  return min((counts1[pos] + counts2[pos]) for pos in counts1 if pos in counts2)
 
 
 check_eq(process1(s1), 6)  # [(-5, 6), (-3, 3)]
@@ -644,9 +640,7 @@ def process1(s, part2=False):  # Using numba to operate on dict is slow.
 
   if not part2:
     return min(abs(y) + abs(x) for y, x in counts1 if (y, x) in counts2)
-  else:
-    return min((counts1[pos] + counts2[pos])
-               for pos in counts1 if pos in counts2)
+  return min((counts1[pos] + counts2[pos]) for pos in counts1 if pos in counts2)
 
 
 check_eq(process1(s1), 6)  # [(-5, 6), (-3, 3)]
@@ -704,7 +698,7 @@ def process1(s, part2=False):  # Recursive search with pruning.
   def have_exactly_two_adjacent(t):
     e = (-1, *t, -1)
     return any(a != b and b == c and c != d
-              for a, b, c, d in zip(e, e[1:], e[2:], e[3:]))
+               for a, b, c, d in zip(e, e[1:], e[2:], e[3:]))
 
   def recurse(base):
     count = 0
@@ -1074,7 +1068,7 @@ s3 = """
 
 # %%
 def process1(s, part2=False, return_final=True, index_vaporized=199,
-            visualize=False):
+             visualize=False):
   grid = hh.grid_from_string(s, {'.': 0, '#': 1})
   indices = list(zip(*grid.nonzero()))
 
@@ -1106,7 +1100,7 @@ def process1(s, part2=False, return_final=True, index_vaporized=199,
   while True:
     sweep_vaporized = []  # asteroids vaporized in one 360-degree sweep
     y, x = grid.nonzero()
-    if not len(y):
+    if not y.size:
       break
     dy, dx = y - src_yx[0], x - src_yx[1]
     # Note that arctan2(y, x) returns (-np.pi, +np.pi], so angle is 0.0 along
@@ -1183,7 +1177,7 @@ def process1(s, part2=False, visualize_nth=0):
     def paint_color(self, color):
       self.painted[self.yx] = color
       if self.visualize_nth and (self.num_paints < self.visualize_nth or
-                                self.num_paints % self.visualize_nth == 0):
+                                 self.num_paints % self.visualize_nth == 0):
         self.tyx_white.update((self.num_frames, *yx)
                               for yx, value in self.painted.items() if value)
         self.num_frames += 1
@@ -1210,7 +1204,6 @@ def process1(s, part2=False, visualize_nth=0):
         video = video.repeat(2, axis=1).repeat(2, axis=2)
         video = [video[0]] * 25 + list(video) + [video[-1]] * 25
         media.show_video(video, codec='gif', fps=25)
-
 
   def test():
     small = [
@@ -1246,7 +1239,7 @@ def process1(s, part2=False, visualize_nth=0):
     return painter.num_painted()
 
   grid = painter.visualized_grid()
-  s = hh.string_from_grid(grid, {0: '.', 1:'#'})
+  s = hh.string_from_grid(grid, {0: '.', 1: '#'})
   answer = advent_of_code_ocr.convert_6(s)  # e.g. 'BLCZCJLZ'
   if not visualize_nth:
     print(answer)
@@ -1305,8 +1298,7 @@ def process1(s, *, num_steps=1000, verbose=False):
     position += velocity
     if verbose:
       print(f'After {step + 1} steps:')
-      for i in range(len(position)):
-        p, v = position[i], velocity[i]
+      for p, v in zip(position, velocity):
         print(f'pos=<x={p[0]:3}, y={p[1]:3}, z={p[2]:3}>, '
               f'vel=<x={v[0]:3}, y={v[1]:3}, z={v[2]:3}>')
 
@@ -1347,7 +1339,6 @@ def process2(s):
       if np.all(velocity == 0.0) and np.all(position == initial_position):
         return step
 
-
   # ~72 ms with numba; ~20 s without numba.
   if 'numba' in globals():
     @numba_njit(cache=True)
@@ -1355,7 +1346,7 @@ def process2(s):
       position = initial_position.copy()
       velocity = np.full_like(position, 0)
       n = len(position)
-      for step in range(1, sys.maxsize):
+      for step in range(1, sys.maxsize):  # numba does not recognize "itertools.count(1)".
         for i in range(n):
           for j in range(n):
             diff = position[j] - position[i]
@@ -1513,7 +1504,7 @@ s4 = """
 176 ORE => 6 VJHF
 """
 
-s5 ="""
+s5 = """
 171 ORE => 8 CNZTR
 7 ZLQW, 3 BMBT, 9 XCVML, 26 XMNCP, 1 WPTQ, 2 MZWV, 1 RJRHP => 4 PLWSL
 114 ORE => 4 BHXH
@@ -1585,7 +1576,10 @@ puzzle.verify(1, process1)  # ~2 ms.
 
 # %%
 def process2(s, debug=False):
-  f = lambda fuel: ore_from_fuel(s, fuel)
+
+  def f(fuel):
+    return ore_from_fuel(s, fuel)
+
   ore_bound = 1_000_000_000_000
   fuel = hh.discrete_binary_search(f, 0, 10_000_000, ore_bound)
   if debug:
@@ -1854,7 +1848,6 @@ def process2(s, repeat_input=10_000):
         np.mod(l, 10, out=l)
     np.mod(l, 10, out=l)
 
-
   if 'numba' in globals():
     @numba_njit(cache=True)
     def fft_transform2_helper(l, num_phases=100):
@@ -1956,11 +1949,12 @@ test()
 def process1(s):
 
   def find_intersections(s):
-    grid, start = parse_scaffold_grid(s)
+    grid, unused_start = parse_scaffold_grid(s)
     intersections = []
     for y in range(1, grid.shape[0] - 1):
       for x in range(1, grid.shape[1] - 1):
-        f = lambda y, x: grid[y, x] != 0
+        def f(y, x):
+          return grid[y, x] != 0
         if (f(y, x) and f(y, x - 1) and f(y, x + 1) and f(y - 1, x) and
             f(y + 1, x)):
           intersections.append((y, x))
@@ -2009,11 +2003,16 @@ def process2(s, visualize=False):
       yx = start
       dyx = (-1, 0)  # initial direction is up ('^')
 
-      is_scaffold = lambda yx: grid[yx] == 1
-      inbounds = lambda yx: all(0 <= yx[i] < grid.shape[i] for i in range(2))
-      inbound_scaffold = lambda yx: inbounds(yx) and is_scaffold(yx)
-      turn_left = lambda dyx: (-dyx[1], dyx[0])
-      turn_right = lambda dyx: (dyx[1], -dyx[0])
+      def is_scaffold(yx):
+        return grid[yx] == 1
+      def inbounds(yx):
+        return all(0 <= yx[i] < grid.shape[i] for i in range(2))
+      def inbound_scaffold(yx):
+        return inbounds(yx) and is_scaffold(yx)
+      def turn_left(dyx):
+        return -dyx[1], dyx[0]
+      def turn_right(dyx):
+        return dyx[1], -dyx[0]
 
       assert not is_scaffold(tuple(np.array(yx) + dyx))
       commands = []
@@ -2044,7 +2043,7 @@ def process2(s, visualize=False):
       return commands
 
     check_eq(','.join(compute_commands(s2)),
-            'R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,R,8,R,8,L,6,L,2')
+             'R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,R,8,R,8,L,6,L,2')
 
     puzzle_s = ''.join(map(chr, Machine(s).run_fully()))
     commands = compute_commands(puzzle_s)
@@ -2347,8 +2346,7 @@ def process1(s, part2=False,
       src_key, dst_key = current_keys[index_key], key
       path = possible_paths(src_key)[dst_key][2]
       image[path[0]] = owned_key_color
-      for i in range(len(path)):
-        yx = path[i]
+      for i, yx in enumerate(path):
         if grid[yx] == '.':
           image[yx] = active_color
         if i >= tail:
@@ -2644,7 +2642,7 @@ def process1(s, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
       assert not any(name in self.yx_of_portal[1] for name in ('AA', 'ZZ'))
       assert len(self.yx_of_portal[0]) == len(self.yx_of_portal[1]) + 2
       assert not any(self.is_inner_portal(yx)
-                    for yx in self.yx_of_portal[0].values())
+                     for yx in self.yx_of_portal[0].values())
       assert all(self.is_inner_portal(yx) for yx in self.yx_of_portal[1].values())
 
       self.portal_portal_path = {}  # [yx][yx2] -> path
@@ -2804,7 +2802,7 @@ def process1(s, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
           level = lyx[0]
           count = 0
           color = ((255, 40, 40) if self.is_inner_portal(last_lyx[1:])
-                  else (0, 180, 60))
+                   else (0, 180, 60))
           lyx2 = self.opposite_portal(last_lyx, max_level)
           image[lyx2[1:]] = color
           yx2 = next(iter(self.portal_portal_path[lyx2[1:]].values()))[0]
@@ -2816,7 +2814,7 @@ def process1(s, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
       media.show_video(images, codec='gif', fps=50)
 
   if part2:
-    max_level=sys.maxsize
+    max_level = sys.maxsize
   if visualize:
     return Maze(s).visualize(max_level)
   path = Maze(s).shortest_path(max_level)
@@ -3095,7 +3093,7 @@ class Deck:
 
   def __mul__(self, other):
     return Deck(self.size, self.start + self.step * other.start,
-                 self.step * other.step)
+                self.step * other.step)
 
   def __pow__(self, exponent):
     x = Deck(self.size)
@@ -3138,7 +3136,7 @@ def test():
   for s in deck10_shuffles:
     Deck(10).verify_shuffle(s)
   check_eq(Deck(10007).apply_shuffle(puzzle.input).apply_shuffle(puzzle.input),
-          Deck(10007).apply_shuffle(puzzle.input)**2)
+           Deck(10007).apply_shuffle(puzzle.input)**2)
 
 test()
 
@@ -3171,7 +3169,7 @@ def process1(s, part2=False, num_machines=50):
 
   for step in itertools.count():
     for i, machine in enumerate(machines):
-      output = machines[i].run_until_need_input(
+      output = machine.run_until_need_input(
           [inputs[i].popleft() if inputs[i] else -1])
       for destination, x, y in hh.grouped(output, 3):
         if destination == 255:
@@ -3243,7 +3241,7 @@ def process2(s, num_steps=200, visualize=False):
     return image.repeat(3, axis=0).repeat(3, axis=1)
 
   images = [flattened(grid)]
-  for step in range(num_steps):
+  for _ in range(num_steps):
     counts[:] = 0
     counts[1:-1, :4, :] += grid[1:-1, 1:, :]
     counts[1:-1, 1:, :] += grid[1:-1, :4, :]
@@ -3324,11 +3322,9 @@ def process1(s, num_steps=2000):
     if location == 'Security Checkpoint':
       if step >= num_steps * 0.5:
         break  # By now we should have taken all the safe items.
-      else:
-        command = 'east'  # Avoid 'north' to get more time to pick up items.
-        continue
-    else:
-      command = random.choice(doors)
+      command = 'east'  # Avoid 'north' to get more time to pick up items.
+      continue
+    command = random.choice(doors)
   else:
     assert False
 
