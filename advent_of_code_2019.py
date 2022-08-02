@@ -2003,16 +2003,11 @@ def process2(s, visualize=False):
       yx = start
       dyx = (-1, 0)  # initial direction is up ('^')
 
-      def is_scaffold(yx):
-        return grid[yx] == 1
-      def inbounds(yx):
-        return all(0 <= yx[i] < grid.shape[i] for i in range(2))
-      def inbound_scaffold(yx):
-        return inbounds(yx) and is_scaffold(yx)
-      def turn_left(dyx):
-        return -dyx[1], dyx[0]
-      def turn_right(dyx):
-        return dyx[1], -dyx[0]
+      def is_scaffold(yx): return grid[yx] == 1
+      def inbounds(yx): return all(0 <= yx[i] < grid.shape[i] for i in range(2))
+      def inbound_scaffold(yx): return inbounds(yx) and is_scaffold(yx)
+      def turn_left(dyx): return -dyx[1], dyx[0]
+      def turn_right(dyx): return dyx[1], -dyx[0]
 
       assert not is_scaffold(tuple(np.array(yx) + dyx))
       commands = []
