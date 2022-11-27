@@ -1809,7 +1809,7 @@ s1 = '12345678'
 def day16_part1(s, *, num_phases=100, debug=False):
 
   def get_fft_pattern(n, i):
-    pattern: Iterable[int] = 0, 1, 0, -1
+    pattern: Iterable[int] = (0, 1, 0, -1)
     pattern = itertools.cycle(pattern)
     pattern = hh.repeat_each(pattern, i + 1)
     pattern = list(itertools.islice(pattern, 1, n + 1))
