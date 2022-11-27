@@ -82,8 +82,9 @@ YEAR = 2019
 PROFILE = 'google.Hugues_Hoppe.965276'
 # PROFILE = 'github.hhoppe.1452460'
 TAR_URL = f'https://github.com/hhoppe/advent_of_code_{YEAR}/raw/main/data/{PROFILE}.tar.gz'
-hh.run(f"if [ ! -d data/{PROFILE} ]; then (mkdir -p data && cd data &&"
-       f" wget -q {TAR_URL} && tar xzf {PROFILE}.tar.gz); fi")
+if 1:
+  hh.run(f"if [ ! -d data/{PROFILE} ]; then (mkdir -p data && cd data &&"
+         f" wget -q {TAR_URL} && tar xzf {PROFILE}.tar.gz); fi")
 INPUT_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}_input.txt'
 ANSWER_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
@@ -395,6 +396,7 @@ if 0:  # For quick timing test while developing.
   puzzle.verify(2, run_game)  # ~60 ms with NumbaMachine; ~3 s without.
 
 # %% [markdown]
+# <a name="day1"></a>
 # ## Day 1: Fuel mass
 
 # %% [markdown]
@@ -409,7 +411,7 @@ puzzle = advent.puzzle(day=1)
 
 
 # %%
-def day1(s, part2=False):
+def day1(s, *, part2=False):
 
   def get_fuel(mass):
     return max(mass // 3 - 2, 0)
@@ -439,6 +441,7 @@ day1_part2 = functools.partial(day1, part2=True)
 puzzle.verify(2, day1_part2)  # ~1 ms.
 
 # %% [markdown]
+# <a name="day2"></a>
 # ## Day 2: Machine with add/subtract
 
 # %% [markdown]
@@ -453,7 +456,7 @@ puzzle = advent.puzzle(day=2)
 
 
 # %%
-def day2a(s, part2=False):  # Original implementation before Machine.
+def day2a(s, *, part2=False):  # Original implementation before Machine.
 
   def day2_machine_op(s, a=12, b=2):
     l = list(map(int, s.split(',')))
@@ -490,7 +493,7 @@ puzzle.verify(2, day2_part2a)  # ~175 ms.
 
 
 # %%
-def day2(s, part2=False):  # Now using Machine class.
+def day2(s, *, part2=False):  # Now using Machine class.
 
   def day2_machine_op(s, a=12, b=2):
     machine = Machine.make(s)
@@ -514,6 +517,7 @@ day2_part2 = functools.partial(day2, part2=True)
 puzzle.verify(2, day2_part2)  # ~220 ms with NumbaMachine; ~900 ms without.
 
 # %% [markdown]
+# <a name="day3"></a>
 # ## Day 3: Intersections of two paths
 
 # %% [markdown]
@@ -591,7 +595,7 @@ check_eq(day3a(s1), 6)  # [[-5  6] [-3  3]]
 
 
 # %%
-def day3b(s, part2=False):  # Using a sparse map on 2D positions.
+def day3b(s, *, part2=False):  # Using a sparse map on 2D positions.
 
   def rasterize(path: str):
     dyx_from_move = dict(L=(0, -1), R=(0, +1), U=(-1, 0), D=(+1, 0))
@@ -637,7 +641,7 @@ puzzle.verify(2, day3_part2a)  # ~230 ms.
 
 
 # %%
-def day3(s, part2=False):  # Using numba to operate on dict is slow.
+def day3(s, *, part2=False):  # Using numba to operate on dict is slow.
 
   @numba_njit(cache=True)
   def rasterize(path):
@@ -677,6 +681,7 @@ check_eq(day3_part2(s3), 410)
 # puzzle.verify(2, day3_part2)  # ~730 ms.
 
 # %% [markdown]
+# <a name="day4"></a>
 # ## Day 4: Valid 6-digit passwords
 
 # %% [markdown]
@@ -711,7 +716,7 @@ puzzle.verify(1, day4a)  # ~1000 ms.
 
 
 # %%
-def day4(s, part2=False):  # Recursive search with pruning.
+def day4(s, *, part2=False):  # Recursive search with pruning.
   lower, upper = (tuple(map(int, list(b))) for b in s.strip().split('-'))
 
   def two_adjacent_are_same(t):
@@ -743,6 +748,7 @@ day4_part2 = functools.partial(day4, part2=True)
 puzzle.verify(2, day4_part2)  # ~5 ms.
 
 # %% [markdown]
+# <a name="day5"></a>
 # ## Day 5: Machine with branching
 
 # %% [markdown]
@@ -783,7 +789,7 @@ day5_test()
 
 
 # %%
-def day5(s, part2=False):
+def day5(s, *, part2=False):
   output = Machine.make(s).run_fully([5 if part2 else 1])
   if part2:
     assert len(output) == 1
@@ -797,6 +803,7 @@ day5_part2 = functools.partial(day5, part2=True)
 puzzle.verify(2, day5_part2)  # ~0 ms.
 
 # %% [markdown]
+# <a name="day6"></a>
 # ## Day 6: Count orbit transfers
 
 # %% [markdown]
@@ -811,7 +818,7 @@ puzzle = advent.puzzle(day=6)
 
 
 # %%
-def day6(s, part2=False, source='YOU', destination='SAN'):
+def day6(s, *, part2=False, source='YOU', destination='SAN'):
 
   def get_orbit_parents(s):
     parents = {}
@@ -855,6 +862,7 @@ check_eq(day6_part2(s2), 4)  # (3 + 1)
 puzzle.verify(2, day6_part2)  # ~1 ms.
 
 # %% [markdown]
+# <a name="day7"></a>
 # ## Day 7: Cycle of 5 machines
 
 # %% [markdown]
@@ -869,7 +877,7 @@ puzzle = advent.puzzle(day=7)
 
 
 # %%
-def day7_part1(s, return_all=False):
+def day7_part1(s, *, return_all=False):
 
   def get_thrust(s, phases):
     check_eq(sorted(phases), list(range(5)))
@@ -897,7 +905,7 @@ puzzle.verify(1, day7_part1)  # ~80 ms.
 
 
 # %%
-def day7_part2(s, return_all=False):
+def day7_part2(s, *, return_all=False):
 
   def get_thrust2(phases):
     check_eq(sorted(phases), list(range(5, 10)))
@@ -930,6 +938,7 @@ check_eq(day7_part2(s2, return_all=True), (18216, (9, 7, 8, 5, 6)))
 puzzle.verify(2, day7_part2)  # ~105 ms.
 
 # %% [markdown]
+# <a name="day8"></a>
 # ## Day 8: Compositing image layers
 
 # %% [markdown]
@@ -944,7 +953,7 @@ puzzle = advent.puzzle(day=8)
 
 
 # %%
-def day8(s, part2=False):
+def day8(s, *, part2=False):
   s = s.strip('\n')
   grid = hh.grid_from_string(s).astype(np.uint8).reshape(-1, 6, 25)
 
@@ -984,6 +993,7 @@ day8_part2 = functools.partial(day8, part2=True)
 puzzle.verify(2, day8_part2)  # ~14 ms.
 
 # %% [markdown]
+# <a name="day9"></a>
 # ## Day 9: Machine with relative base
 
 # %% [markdown]
@@ -1018,7 +1028,7 @@ day8_test()
 
 
 # %%
-def day9(s, part2=False):
+def day9(s, *, part2=False):
   input = 2 if part2 else 1
   output, = Machine.make(s).run_fully([input])
   return output
@@ -1029,6 +1039,7 @@ day9_part2 = functools.partial(day9, part2=True)
 puzzle.verify(2, day9_part2)  # ~11 ms with NumbaMachine; ~1300 ms without.
 
 # %% [markdown]
+# <a name="day10"></a>
 # ## Day 10: Vaporize occluded asteroids
 
 # %% [markdown]
@@ -1085,7 +1096,7 @@ s3 = """
 
 
 # %%
-def day10(s, part2=False, return_final=True, index_vaporized=199, visualize=False):
+def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=False):
   grid = hh.grid_from_string(s, {'.': 0, '#': 1})
   indices = list(zip(*grid.nonzero()))
 
@@ -1162,6 +1173,7 @@ puzzle.verify(2, day10_part2)  # ~150 ms with numba; ~250 ms without numba.
 _ = day10_part2(puzzle.input, visualize=True)
 
 # %% [markdown]
+# <a name="day11"></a>
 # ## Day 11: Turtle walk painting
 
 # %% [markdown]
@@ -1177,7 +1189,7 @@ puzzle = advent.puzzle(day=11)
 
 
 # %%
-def day11(s, part2=False, visualize_nth=0):
+def day11(s, *, part2=False, visualize_nth=0):
 
   class Painter:
 
@@ -1272,6 +1284,7 @@ _ = day11(puzzle.input, visualize_nth=16)
 _ = day11_part2(puzzle.input, visualize_nth=1)
 
 # %% [markdown]
+# <a name="day12"></a>
 # ## Day 12: Periodic n-body problem
 
 # %% [markdown]
@@ -1385,6 +1398,7 @@ check_eq(day12_part2(s2), 4686774924)
 puzzle.verify(2, day12_part2)
 
 # %% [markdown]
+# <a name="day13"></a>
 # ## Day 13: Game with ball and paddle
 
 # %% [markdown]
@@ -1422,7 +1436,7 @@ puzzle.verify(1, day13)  # ~3 ms with NumbaMachine; ~80 ms without.
 
 
 # %%
-def day13_part2(s, visualize=False):
+def day13_part2(s, *, visualize=False):
   machine = Machine.make(s)
   machine.mem[0] = 2  # set free play
   score = None
@@ -1462,6 +1476,7 @@ puzzle.verify(2, day13_part2)  # ~65 ms with NumbaMachine; ~3 s without.
 _ = day13_part2(puzzle.input, visualize=True)
 
 # %% [markdown]
+# <a name="day14"></a>
 # ## Day 14: Make fuel from ore
 
 # %% [markdown]
@@ -1543,7 +1558,7 @@ s5 = """
 
 
 # %%
-def day14(s, fuel=1):
+def day14(s, *, fuel=1):
 
   def parse_recipes(s):
     """Returns {output: (quantity_output, Counter(inputs)}."""
@@ -1590,10 +1605,10 @@ puzzle.verify(1, day14)  # ~2 ms.
 
 
 # %%
-def day14_part2(s, debug=False):
+def day14_part2(s, *, debug=False):
 
   def ore_from_fuel(fuel):
-    return day14(s, fuel)
+    return day14(s, fuel=fuel)
 
   ore_bound = 1_000_000_000_000
   fuel = hh.discrete_binary_search(ore_from_fuel, 0, 10_000_000, ore_bound)
@@ -1605,6 +1620,7 @@ puzzle.verify(2, day14_part2)  # ~43 ms.
 _ = day14_part2(puzzle.input, debug=True)
 
 # %% [markdown]
+# <a name="day15"></a>
 # ## Day 15: Shortest maze path
 
 # %% [markdown]
@@ -1772,6 +1788,7 @@ puzzle.verify(2, day15_part2)  # ~36 ms.
 _ = ExploreMaze(puzzle.input).farthest_distance_from_destination(visualize=True)
 
 # %% [markdown]
+# <a name="day16"></a>
 # ## Day 16: Fast faulty transform (FFT)
 
 # %% [markdown]
@@ -1789,7 +1806,7 @@ s1 = '12345678'
 
 
 # %%
-def day16_part1(s, num_phases=100, debug=False):
+def day16_part1(s, *, num_phases=100, debug=False):
 
   def get_fft_pattern(n, i):
     pattern: Iterable[int] = 0, 1, 0, -1
@@ -1853,7 +1870,7 @@ day16_test()
 # of 500_000 and time complexity of 50_000_000.
 
 # %%
-def day16_part2(s, repeat_input=10_000):
+def day16_part2(s, *, repeat_input=10_000):
 
   def fft_transform2_helper(l, num_phases=100):
     for phase in range(num_phases):
@@ -1927,6 +1944,7 @@ puzzle.verify(2, day16_part2)  # ~260 ms with numba; ~410 ms without numba.
 # 100 24176176480919046114038763195595
 
 # %% [markdown]
+# <a name="day17"></a>
 # ## Day 17: Robot movement routine
 
 # %% [markdown]
@@ -2012,7 +2030,7 @@ s2 = """
 
 
 # %%
-def day17_part2(s, visualize=False):
+def day17_part2(s, *, visualize=False):
 
   def get_robot_input(s):
 
@@ -2105,6 +2123,7 @@ puzzle.verify(2, day17_part2)  # ~9 ms.
 _ = day17_part2(puzzle.input, visualize=True)
 
 # %% [markdown]
+# <a name="day18"></a>
 # ## Day 18: Maze with doors and keys
 
 # %% [markdown]
@@ -2262,7 +2281,7 @@ puzzle.verify(1, day18a)  # ~1100 ms.
 
 
 # %%
-def day18(s, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
+def day18(s, *, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
   def is_key(ch): return ch.islower() or ch in '0123'
   def is_door(ch): return ch.isupper()
   def key_for_door(ch): return ch.lower()
@@ -2412,6 +2431,7 @@ _ = day18_part2(s14, visualize=True, size=8, fps=4)
 _ = day18_part2(puzzle.input, visualize=True, speed=2, tail=2)  # ~12 s.
 
 # %% [markdown]
+# <a name="day19"></a>
 # ## Day 19: Tractor beam region
 
 # %% [markdown]
@@ -2426,7 +2446,7 @@ puzzle = advent.puzzle(day=19)
 
 
 # %%
-def day19_part1(s, shape=(50, 50), visualize=False):
+def day19_part1(s, *, shape=(50, 50), visualize=False):
 
   def in_tractor(y, x):
     output, = Machine.make(s).run_fully([x, y])
@@ -2444,7 +2464,7 @@ _ = day19_part1(puzzle.input, visualize=True)
 
 
 # %%
-def day19_part2(s, size=100, visualize=False):
+def day19_part2(s, *, size=100, visualize=False):
 
   def in_tractor(y, x):
     output, = Machine.make(s).run_fully([x, y])
@@ -2492,6 +2512,7 @@ puzzle.verify(2, day19_part2)  # ~470 ms with NumbaMachine; ~4.4 s without.
 _ = day19_part2(puzzle.input, visualize=True)  # Slow; ~3.8 s.
 
 # %% [markdown]
+# <a name="day20"></a>
 # ## Day 20: Maze with recursive portals
 
 # %% [markdown]
@@ -2614,7 +2635,7 @@ if 0:
 
 
 # %%
-def day20(s, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
+def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
 
   class Maze:
     NEIGHBORS = (0, 1), (1, 0), (0, -1), (-1, 0)
@@ -2863,6 +2884,7 @@ _ = day20_part2(puzzle.input, visualize=True, speed=2)  # Slow: ~25 s.
 #  Javascript code: https://imgur.com/NigyhsF
 
 # %% [markdown]
+# <a name="day21"></a>
 # ## Day 21: Program jumping robot
 
 # %% [markdown]
@@ -2985,6 +3007,7 @@ def day21_part2(s):
 puzzle.verify(2, day21_part2)  # ~16 ms with NumbaMachine; ~2400 ms without.
 
 # %% [markdown]
+# <a name="day22"></a>
 # ## Day 22: Card-deck shuffle
 
 # %% [markdown]
@@ -3163,7 +3186,7 @@ day22_test()
 
 
 # %%
-def day22(s, part2=False):
+def day22(s, *, part2=False):
   deck_size = 119315717514047 if part2 else 10007
   num_shuffles = 101741582076661 if part2 else 1
   deck = Deck(deck_size).apply_shuffle(s)**num_shuffles
@@ -3175,6 +3198,7 @@ day22_part2 = functools.partial(day22, part2=True)
 puzzle.verify(2, day22_part2)  # ~1 ms.
 
 # %% [markdown]
+# <a name="day23"></a>
 # ## Day 23: Network of 50 machines
 
 # %%
@@ -3182,7 +3206,7 @@ puzzle = advent.puzzle(day=23)
 
 
 # %%
-def day23(s, part2=False, num_machines=50):
+def day23(s, *, part2=False, num_machines=50):
   machines = [Machine.make(s) for _ in range(num_machines)]
   inputs = [collections.deque([i]) for i, machine in enumerate(machines)]
   nat_memory: tuple[int, int] | None = None
@@ -3212,6 +3236,7 @@ day23_part2 = functools.partial(day23, part2=True)
 puzzle.verify(2, day23_part2)  # ~132 ms.
 
 # %% [markdown]
+# <a name="day24"></a>
 # ## Day 24: Game of life - nested rings
 
 # %%
@@ -3249,7 +3274,7 @@ puzzle.verify(1, day24_part1)  # ~1 ms.
 
 
 # %%
-def day24_part2(s, num_steps=200, visualize=False):
+def day24_part2(s, *, num_steps=200, visualize=False):
   abs_level = num_steps // 2 + 1  # slow propagation
   # Levels [-abs_level, abs_level] map to grid[1 : abs_level * 2 + 2].
   grid = np.zeros((abs_level * 2 + 3, 5, 5), dtype=np.int64)  # zero-padded
@@ -3296,6 +3321,7 @@ puzzle.verify(2, day24_part2)  # ~36 ms.
 _ = day24_part2(puzzle.input, visualize=True)  # ~3 s.
 
 # %% [markdown]
+# <a name="day25"></a>
 # ## Day 25: Text adventure (n,s,e,w)
 
 # %%
@@ -3303,7 +3329,7 @@ puzzle = advent.puzzle(day=25)
 
 
 # %%
-def day25(s, num_steps=2000):
+def day25(s, *, num_steps=2000):
   UNSAFE_ITEMS = {'photons', 'infinite loop', 'giant electromagnet',
                   'molten lava', 'escape pod'}
   # 'It is suddenly completely dark! You are eaten by a Grue!'
@@ -3368,6 +3394,7 @@ puzzle.verify(2, lambda s: '')  # (No "Part 2" on last day.)
 # (aocd does not allow a blank answer; the answer is not submitted)
 
 # %% [markdown]
+# <a name="timings"></a>
 # ## Timings
 
 # %%
