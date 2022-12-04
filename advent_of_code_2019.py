@@ -488,8 +488,8 @@ def day2a(s, *, part2=False):  # Original implementation before Machine.
 
 
 puzzle.verify(1, day2a)  # ~0 ms.
-day2_part2a = functools.partial(day2a, part2=True)
-puzzle.verify(2, day2_part2a)  # ~175 ms.
+day2a_part2 = functools.partial(day2a, part2=True)
+puzzle.verify(2, day2a_part2)  # ~175 ms.
 
 
 # %%
@@ -548,7 +548,7 @@ U98,R91,D20,R16,D67,R40,U7,R15,U6,R7
 
 
 # %%
-def day3a(s):  # Abandonned slow version, using large 2D images.
+def day3a_part1(s):  # Abandonned slow version, using large 2D images.
   shape = 20, 20  # Y, X
   origin = np.array(shape) // 2
 
@@ -591,7 +591,7 @@ def day3a(s):  # Abandonned slow version, using large 2D images.
   return abs(intersections).sum(axis=-1).min()
 
 
-check_eq(day3a(s1), 6)  # [[-5  6] [-3  3]]
+check_eq(day3a_part1(s1), 6)  # [[-5  6] [-3  3]]
 
 
 # %%
@@ -633,11 +633,11 @@ check_eq(day3b(s2), 159)
 check_eq(day3b(s3), 135)
 puzzle.verify(1, day3b)  # ~230 ms.
 
-day3_part2a = functools.partial(day3b, part2=True)
-check_eq(day3_part2a(s1), 30)
-check_eq(day3_part2a(s2), 610)
-check_eq(day3_part2a(s3), 410)
-puzzle.verify(2, day3_part2a)  # ~230 ms.
+day3b_part2 = functools.partial(day3b, part2=True)
+check_eq(day3b_part2(s1), 30)
+check_eq(day3b_part2(s2), 610)
+check_eq(day3b_part2(s3), 410)
+puzzle.verify(2, day3b_part2)  # ~230 ms.
 
 
 # %%
