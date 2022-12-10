@@ -531,17 +531,17 @@ puzzle.verify(2, day2_part2)  # ~220 ms with NumbaMachine; ~900 ms without.
 puzzle = advent.puzzle(day=3)
 
 # %%
-s1 = """
+s1 = """\
 R8,U5,L5,D3
 U7,R6,D4,L4
 """
 
-s2 = """
+s2 = """\
 R75,D30,R83,U83,L12,D49,R71,U7,L72
 U62,R66,U55,R34,D71,R55,D58,R83
 """
 
-s3 = """
+s3 = """\
 R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 U98,R91,D20,R16,D67,R40,U7,R15,U6,R7
 """
@@ -581,7 +581,7 @@ def day3a_part1(s):  # Abandonned slow version, using large 2D images.
           grid[tuple(position)] = count
     return grid
 
-  path1, path2 = s.strip('\n').split('\n')
+  path1, path2 = s.splitlines()
   grid1 = rasterize(path1)
   grid2 = rasterize(path2)
   intersect = (grid1 > 0) & (grid2 > 0)
@@ -619,7 +619,7 @@ def day3b(s, *, part2=False):  # Using a sparse map on 2D positions.
       # The paths are a bit too large to store in a grid or visualize.
     return counts
 
-  path1, path2 = s.strip('\n').split('\n')
+  path1, path2 = s.splitlines()
   counts1 = rasterize(path1)
   counts2 = rasterize(path2)
 
@@ -656,7 +656,7 @@ def day3(s, *, part2=False):  # Using numba to operate on dict is slow.
           counts[y, x] = count
     return counts
 
-  path1, path2 = s.strip('\n').split('\n')
+  path1, path2 = s.splitlines()
   dyx_from_move = dict(L=(0, -1), R=(0, +1), U=(-1, 0), D=(+1, 0))
   counts1, counts2 = [
       rasterize(np.array([[*dyx_from_move[move[:1]], int(move[1:])]
@@ -954,7 +954,6 @@ puzzle = advent.puzzle(day=8)
 
 # %%
 def day8(s, *, part2=False):
-  s = s.strip('\n')
   grid = hh.grid_from_string(s).astype(np.uint8).reshape(-1, 6, 25)
 
   if not part2:
@@ -1054,8 +1053,8 @@ puzzle = advent.puzzle(day=10)
 
 # %%
 # Indent lines to avoid b/174323966 (Colab ... prefix in multiline string).
-# An alternative is textwarp.dedent() or re.sub(r'(?m)^  ', r'', s.strip('\n')).
-s1 = """
+# An alternative is textwarp.dedent() or re.sub(r'(?m)^  ', r'', s).
+s1 = """\
   .#..#
   .....
   #####
@@ -1063,7 +1062,7 @@ s1 = """
   ...##
 """.replace(' ', '')
 
-s2 = """
+s2 = """\
   .#....#####...#..
   ##...##.#####..##
   ##...#...#.#####.
@@ -1071,7 +1070,7 @@ s2 = """
   ..#.#.....#....##
 """.replace(' ', '')
 
-s3 = """
+s3 = """\
   .#..##.###...#######
   ##.############..##.
   .#.######.########.#
@@ -1298,7 +1297,7 @@ _ = day11_part2(puzzle.input, visualize_nth=1)
 puzzle = advent.puzzle(day=12)
 
 # %%
-s1 = """
+s1 = """\
 <x=-1, y=0, z=2>
 <x=2, y=-10, z=-7>
 <x=4, y=-8, z=8>
@@ -1306,7 +1305,7 @@ s1 = """
 """
 
 # long period
-s2 = """
+s2 = """\
 <x=-8, y=-10, z=0>
 <x=5, y=5, z=10>
 <x=2, y=-7, z=3>
@@ -1490,7 +1489,7 @@ _ = day13_part2(puzzle.input, visualize=True)
 puzzle = advent.puzzle(day=14)
 
 # %%
-s1 = """
+s1 = """\
 10 ORE => 10 A
 1 ORE => 1 B
 7 A, 1 B => 1 C
@@ -1499,7 +1498,7 @@ s1 = """
 7 A, 1 E => 1 FUEL
 """
 
-s2 = """
+s2 = """\
 9 ORE => 2 A
 8 ORE => 3 B
 7 ORE => 5 C
@@ -1509,7 +1508,7 @@ s2 = """
 2 AB, 3 BC, 4 CA => 1 FUEL
 """
 
-s3 = """
+s3 = """\
 157 ORE => 5 NZVS
 165 ORE => 6 DCFZ
 44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL
@@ -1521,7 +1520,7 @@ s3 = """
 3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT
 """
 
-s4 = """
+s4 = """\
 2 VPVL, 7 FWMGM, 2 CXFTF, 11 MNCFX => 1 STKFG
 17 NVRVD, 3 JNWZP => 8 VPVL
 53 STKFG, 6 MNCFX, 46 VJHF, 81 HVMC, 68 CXFTF, 25 GNMV => 1 FUEL
@@ -1536,7 +1535,7 @@ s4 = """
 176 ORE => 6 VJHF
 """
 
-s5 = """
+s5 = """\
 171 ORE => 8 CNZTR
 7 ZLQW, 3 BMBT, 9 XCVML, 26 XMNCP, 1 WPTQ, 2 MZWV, 1 RJRHP => 4 PLWSL
 114 ORE => 4 BHXH
@@ -1567,7 +1566,7 @@ def day14(s, *, fuel=1):
       quantity, element = hh.re_groups(r'^(\d+) (\w+)$', s)
       return collections.Counter({element: int(quantity)})
 
-    lines = s.strip().split('\n')
+    lines = s.splitlines()
     recipes = {}
     for line in lines:
       s_input, s_output = hh.re_groups(r'^([^=]+) => (\d+ \w+)$', line)
@@ -1823,7 +1822,7 @@ def day16_part1(s, *, num_phases=100, debug=False):
     print_fft_patterns(20)
     return
 
-  l = np.array(list(map(int, s.strip('\n'))))
+  l = np.array(list(map(int, s.strip())))
   patterns = np.array([get_fft_pattern(len(l), i) for i in range(len(l))])
   for _ in range(num_phases):
     np.mod(abs(patterns @ l), 10, out=l)
@@ -1894,9 +1893,8 @@ def day16_part2(s, *, repeat_input=10_000):
 
     fft_transform2_helper = fft_transform2_helper_numba  # noqa
 
-  s = s.strip('\n')
   index = int(s[:7])
-  l = list(map(int, s)) * repeat_input
+  l = list(map(int, s.strip())) * repeat_input
   assert index > len(l) * 0.51  # output is only valid over last half
   l = np.array(l[index:])  # (Setting dtype has no effect on numba performance.)
   fft_transform2_helper(l)
@@ -1958,7 +1956,7 @@ puzzle.verify(2, day16_part2)  # ~260 ms with numba; ~410 ms without numba.
 puzzle = advent.puzzle(day=17)
 
 # %%
-s1 = """
+s1 = """\
 ..#..........
 ..#..........
 #######...###
@@ -2010,7 +2008,7 @@ puzzle.verify(1, day17_part1)  # ~3 ms.
 # Part 2
 
 # %%
-s2 = """
+s2 = """\
 #######...#####
 #.....#...#...#
 #.....#...#...#
@@ -2140,13 +2138,13 @@ if 0:
   print(puzzle.input)
 
 # %%
-s1 = """
+s1 = """\
 #########
 #b.A.@.a#
 #########
 """
 
-s2 = """
+s2 = """\
 ########################
 #f.D.E.e.C.b.A.@.a.B.c.#
 ######################.#
@@ -2154,7 +2152,7 @@ s2 = """
 ########################
 """
 
-s3 = """
+s3 = """\
 ########################
 #...............b.C.D.f#
 #.######################
@@ -2162,7 +2160,7 @@ s3 = """
 ########################
 """
 
-s4 = """
+s4 = """\
 #################
 #i.G..c...e..H.p#
 ########.########
@@ -2174,7 +2172,7 @@ s4 = """
 #################
 """
 
-s5 = """
+s5 = """\
 ########################
 #@..............ac.GI.b#
 ###d#e#f################
@@ -2183,7 +2181,7 @@ s5 = """
 ########################
 """
 
-s11 = """
+s11 = """\
 #######
 #a.#Cd#
 ##...##
@@ -2193,7 +2191,7 @@ s11 = """
 #######
 """
 
-s12 = """
+s12 = """\
 ###############
 #d.ABC.#.....a#
 ######@#@######
@@ -2203,7 +2201,7 @@ s12 = """
 ###############
 """
 
-s13 = """
+s13 = """\
 #############
 #DcBa.#.GhKl#
 #.###@#@#I###
@@ -2213,7 +2211,7 @@ s13 = """
 #############
 """
 
-s14 = """
+s14 = """\
 #############
 #g#f.D#..h#l#
 #F###e#E###.#
@@ -2526,7 +2524,7 @@ _ = day19_part2(puzzle.input, visualize=True)  # Slow; ~3.8 s.
 puzzle = advent.puzzle(day=20)
 
 # %%
-s1 = """
+s1 = """\
          A           EOL
          A           EOL
   #######.#########  EOL
@@ -2548,7 +2546,7 @@ FG..#########.....#  EOL
              Z       EOL
 """.replace('EOL', '')
 
-s2 = """
+s2 = """\
                    A               EOL
                    A               EOL
   #################.#############  EOL
@@ -2588,7 +2586,7 @@ YN......#               VT..#....QGEOL
            U   P   P               EOL
 """.replace('EOL', '')
 
-s3 = """
+s3 = """\
              Z L X W       C                 EOL
              Z P Q B       K                 EOL
   ###########.#.#.#.#######.###############  EOL
@@ -2641,7 +2639,7 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
     NEIGHBORS = (0, 1), (1, 0), (0, -1), (-1, 0)
 
     def __init__(self, s):
-      lines = s.strip('\n').split('\n')
+      lines = s.splitlines()
       self.grid = grid = np.array(list(map(list, lines)))
       h, w = grid.shape
       hole = hh.bounding_slices(grid[2:-2, 2:-2] == ' ')
@@ -2901,7 +2899,7 @@ puzzle = advent.puzzle(day=21)
 # %%
 def day21_process_springscript(
     s, spring_program, verbose=False, command='WALK'):
-  spring_program = spring_program.lstrip('\n') + command + '\n'
+  spring_program = spring_program + command + '\n'
   input = list(map(ord, spring_program))
   output = Machine.make(s).run_fully(input)
   value = output.pop() if output[-1] >= 128 else None
@@ -2920,7 +2918,7 @@ def day21_process_springscript(
 def day21(s):
   # Success: Jump if there is ground at D and any of A,B,C are hole:
   # J = D AND NOT (A AND B AND C)
-  spring_program = """
+  spring_program = """\
     OR  A T
     AND B T
     AND C T
@@ -2937,28 +2935,28 @@ if 1:
     return day21_process_springscript(puzzle.input, *args, **kwargs)
 
   # Never jump: empty program
-  check_eq(day21_part1_test("""
+  check_eq(day21_part1_test("""\
   """), None)
 
   # Always jump: J = NOT J
-  check_eq(day21_part1_test("""
+  check_eq(day21_part1_test("""\
     NOT J J
   """), None)
 
   # Wait for the last moment to jump: J = (NOT A)
-  check_eq(day21_part1_test("""
+  check_eq(day21_part1_test("""\
   NOT A J
   """), None)
 
   # Jump if there is ground at D (+4): J = D
-  check_eq(day21_part1_test("""
+  check_eq(day21_part1_test("""\
     NOT D T
     NOT T J
   """), None)
 
   # Jump if there is ground at D unless both A and B are ground:
   # J = D AND NOT (A AND B)
-  check_eq(day21_part1_test("""
+  check_eq(day21_part1_test("""\
     OR  A T
     AND B T
     NOT T J
@@ -2978,7 +2976,7 @@ if 1:
   # Previous algorithm: Jump if there is ground at D and any of A,B,C are hole:
   # J = D AND NOT (A AND B AND C)
   check_eq(
-      day21_part2_test("""
+      day21_part2_test("""\
      OR  A T
      AND B T
      AND C T
@@ -2991,7 +2989,7 @@ def day21_part2(s):
   # Jump if there is ground at D and any of A,B,C are hole, except if E and H are holes.
   # J = D AND NOT (A AND B AND C) AND NOT (NOT E and NOT H)
   # J = D AND NOT (A AND B AND C) AND (E OR H)
-  spring_program = """
+  spring_program = """\
     OR  A T
     AND B T
     AND C T
@@ -3022,25 +3020,25 @@ puzzle = advent.puzzle(day=22)
 
 # %%
 day22_deck10_shuffles = [
-    """
+    """\
 deal with increment 7
 deal into new stack
 deal into new stack
 Result: 0 3 6 9 2 5 8 1 4 7
 """,
-    """
+    """\
 cut 6
 deal with increment 7
 deal into new stack
 Result: 3 0 7 4 1 8 5 2 9 6
 """,
-    """
+    """\
 deal with increment 7
 deal with increment 9
 cut -2
 Result: 6 3 0 7 4 1 8 5 2 9
 """,
-    """
+    """\
 deal into new stack
 cut -2
 deal with increment 7
@@ -3150,7 +3148,7 @@ class Deck:
 
   def apply_shuffle(self, shuffle):
     deck = self
-    for line in shuffle.strip('\n').split('\n'):
+    for line in shuffle.splitlines():
       if line == 'deal into new stack':
         deck = deck.deal_into_new_stack()
       elif line.startswith('cut '):
@@ -3165,7 +3163,7 @@ class Deck:
 
   def verify_shuffle(self, shuffle):
     deck = self.apply_shuffle(shuffle)
-    line = shuffle.strip('\n').split('\n')[-1]
+    line = shuffle.splitlines()[-1]
     assert line.startswith('Result:')
     expected = list(map(int, line[len('Result:'):].split()))
     check_eq(deck.cards(), expected)
@@ -3243,7 +3241,7 @@ puzzle.verify(2, day23_part2)  # ~132 ms.
 puzzle = advent.puzzle(day=24)
 
 # %%
-s1 = """
+s1 = """\
 ....#
 #..#.
 #..##
