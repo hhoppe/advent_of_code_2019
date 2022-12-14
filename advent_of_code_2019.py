@@ -42,7 +42,7 @@
 # !command -v ffmpeg >/dev/null || (apt-get -qq update && apt-get -qq -y install ffmpeg) >/dev/null
 
 # %%
-# !pip install -q advent-of-code-ocr advent-of-code-hhoppe hhoppe-tools mediapy numba
+# !pip install -q advent-of-code-ocr advent-of-code-hhoppe hhoppe-tools mediapy more-itertools numba
 
 # %%
 from __future__ import annotations
@@ -65,6 +65,7 @@ import advent_of_code_hhoppe  # https://github.com/hhoppe/advent-of-code-hhoppe/
 import advent_of_code_ocr  # https://github.com/bsoyka/advent-of-code-ocr/blob/main/advent_of_code_ocr/__init__.py
 import hhoppe_tools as hh  # https://github.com/hhoppe/hhoppe-tools/blob/main/hhoppe_tools/__init__.py
 import mediapy as media
+import more_itertools
 import numpy as np
 
 # %%
@@ -384,7 +385,7 @@ if 0:  # For quick timing test while developing.
 
     while not machine.terminated:
       output = machine.run_until_need_input(input)
-      for x, y, tile_id in hh.grouped(output, 3):
+      for x, y, tile_id in more_itertools.chunked(output, 3):
         if (x, y) == (-1, 0):
           score = tile_id
         elif tile_id in (4, 3):  # ball or paddle
@@ -423,8 +424,7 @@ def day1(s, *, part2=False):
   check_eq(get_fuel(100756), 33583)
 
   def get_adjusted_fuel(mass):
-    fuel = get_fuel(mass)
-    if fuel:
+    if fuel := get_fuel(mass):
       fuel += get_adjusted_fuel(fuel)
     return fuel
 
@@ -483,7 +483,7 @@ def day2a(s, *, part2=False):  # Original implementation before Machine.
     for a in range(min(a_plus_b, 100)):
       b = a_plus_b - a
       if day2_machine_op(s, a, b) == 19690720:
-        hh.show(a, b)
+        # hh.show(a, b)
         return a * 100 + b
 
 
@@ -508,7 +508,7 @@ def day2(s, *, part2=False):  # Now using Machine class.
     for a in range(min(a_plus_b, 100)):
       b = a_plus_b - a
       if day2_machine_op(s, a, b) == 19690720:
-        hh.show(a, b)
+        # hh.show(a, b)
         return a * 100 + b
 
 
@@ -571,7 +571,7 @@ def day3a_part1(s):  # Abandonned slow version, using large 2D images.
     count = 0
     for move in moves:
       vec = vec_from_move(move)
-      # print(f'position={position} vec={vec}')
+      # print(f'{position=} {vec=}')
       while vec.any():
         step = np.sign(vec)
         vec -= step
@@ -975,14 +975,16 @@ def day8(s, *, part2=False):
   # check_eq(composite(s1), array_from_string('0110').reshape(2, 2))
 
   result = np.pad(composite(grid), 0)
-  print(result)
+  if 0:
+    print(result)
   assert np.all(result < 2)
   result2 = np.pad(result, 1)
   media.show_image(result2, height=result2.shape[0] * 2)
 
   s = hh.string_from_grid(result, {0: '.', 1: '#'})
   answer = advent_of_code_ocr.convert_6(s)  # e.g. 'EHRUE'
-  print(answer)
+  if 0:
+    print(answer)
   return answer
 
 
@@ -1144,7 +1146,7 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
     for dst_y, dst_x in sweep_vaporized:
       if visualize:
         image = media.to_rgb(grid == 0)
-        image[src_yx] = 255, 0, 0
+        image[src_yx] = 1.0, 0.0, 0.0
         image = image.repeat(4, axis=0).repeat(4, axis=1)
         images.append(image)
       grid[dst_y, dst_x] = 0
@@ -1268,7 +1270,7 @@ def day11(s, *, part2=False, visualize_nth=0):
   grid = painter.visualized_grid()
   s = hh.string_from_grid(grid, {0: '.', 1: '#'})
   answer = advent_of_code_ocr.convert_6(s)  # e.g. 'BLCZCJLZ'
-  if not visualize_nth:
+  if 0 and not visualize_nth:
     print(answer)
   return answer
 
@@ -1421,7 +1423,7 @@ puzzle = advent.puzzle(day=13)
 # %%
 def day13(s):
   grid = {}
-  for x, y, tile_id in hh.grouped(Machine.make(s).run_fully(), 3):
+  for x, y, tile_id in more_itertools.chunked(Machine.make(s).run_fully(), 3):
     grid[y, x] = tile_id
 
   if 0:
@@ -1446,7 +1448,7 @@ def day13_part2(s, *, visualize=False):
   images: list[np.ndarray] = []
   while not machine.terminated:
     output = machine.run_until_need_input(input)
-    for x, y, tile_id in hh.grouped(output, 3):
+    for x, y, tile_id in more_itertools.chunked(output, 3):
       assert x is not None and y is not None and tile_id is not None  # Help mypy.
       if (x, y) == (-1, 0):
         score = tile_id
@@ -1810,7 +1812,7 @@ def day16_part1(s, *, num_phases=100, debug=False):
   def get_fft_pattern(n, i):
     pattern: Iterable[int] = (0, 1, 0, -1)
     pattern = itertools.cycle(pattern)
-    pattern = hh.repeat_each(pattern, i + 1)
+    pattern = more_itertools.repeat_each(pattern, i + 1)
     pattern = list(itertools.islice(pattern, 1, n + 1))
     return pattern
 
@@ -1852,9 +1854,10 @@ def day16_test():
     index = int(input[:7])
     frac = index / (len(input) * 10_000)
     trailing = len(input) * 10_000 - index
-    print(f'index={index:<8} frac={frac:#.4} trailing={trailing}')
+    print(f'{index=:<8} {frac=:#.4} {trailing=}')
 
-day16_test()
+if 0:
+  day16_test()
 
 
 # %%
@@ -1977,7 +1980,8 @@ def day17_test():
   grid, start = day17_parse_scaffold_grid(s1)
   print(grid, start)
 
-day17_test()
+if 0:
+  day17_test()
 
 
 # %%
@@ -2084,8 +2088,7 @@ def day17_part2(s, *, visualize=False):
       best = 10**8, '', ''
       for num_matches in range(2, 10):
         pattern = r'([LR0-9][LR,0-9]+[LR0-9],)' + r'.*\1' * num_matches
-        match = re.search(pattern, s_routine[skip:])
-        if match:
+        if match := re.search(pattern, s_routine[skip:]):
           group1 = match.group(1)[:-1]
           candidate = s_routine.replace(group1, chr(ord('A') + i))
           best = min(best, (len(candidate), group1, candidate))
@@ -2095,13 +2098,12 @@ def day17_part2(s, *, visualize=False):
       # hh.show(skip, group1, candidate, s_routine)
     s_routine = s_routine[:-1]  # Remove trailing comma.
     assert not any(s in s_routine for s in 'LR')
-    if visualize:
+    if 0:
       hh.show(s_functions, s_routine)
 
     s_video_feed = 'n'
-    return list(itertools.chain.from_iterable(
-        list(map(ord, s + '\n'))
-        for s in ([s_routine] + s_functions + [s_video_feed])))
+    return list(more_itertools.flatten(list(map(ord, s + '\n'))
+                                       for s in ([s_routine] + s_functions + [s_video_feed])))
 
   robot_input = get_robot_input(s)
   machine = Machine.make(s)
@@ -2490,7 +2492,7 @@ def day19_part2(s, *, size=100, visualize=False):
     yxmap[y, xmin] = yxmap[y, xmax] = '#'
 
     x_upper_right = map_xmax.get(y - size + 1, 0)
-    # print(f'y={y:<6} xmin={xmin:<6} xmax={xmax:<6} ur={x_upper_right}')
+    # print(f'{y=:<6} {xmin=:<6} {xmax=:<6} ur={x_upper_right}')
     if xmin + size - 1 <= x_upper_right:
       x, y = xmin, y - size + 1  # upper-left of square
       if visualize:
@@ -2796,8 +2798,7 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
             parent[lyx2] = lyx
 
         # Consider the neighbor across the portal:
-        lyx2 = self.opposite_portal(lyx, max_level)
-        if lyx2:
+        if lyx2 := self.opposite_portal(lyx, max_level):
           candidate_d2 = d + 1
           if candidate_d2 < distance[lyx2]:
             distance[lyx2] = candidate_d2
@@ -3112,8 +3113,7 @@ class Deck:
     assert 0 <= pos < self.size
     # We solve for the card i that satisfies:
     #   pos == (start + step * i) % size   (with gcd(step, size) == 1)
-    inv_step = hh.modular_inverse(self.step, self.size)
-    # inv_step = pow(self.step, -1, mod=self.size)  # Python 3.8
+    inv_step = pow(self.step, -1, mod=self.size)
     return (inv_step * (pos - self.start)) % self.size
 
   def position_of_card(self, i):
@@ -3213,7 +3213,7 @@ def day23(s, *, part2=False, num_machines=50):
   for step in itertools.count():
     for i, machine in enumerate(machines):
       output = machine.run_until_need_input([inputs[i].popleft() if inputs[i] else -1])
-      for destination, x, y in hh.grouped(output, 3):
+      for destination, x, y in more_itertools.chunked(output, 3):
         assert destination is not None and x is not None and y is not None  # Help mypy.
         if destination == 255:
           if not part2:
@@ -3281,7 +3281,7 @@ def day24_part2(s, *, num_steps=200, visualize=False):
 
   def flattened(grid):
     grid = np.pad(grid.astype(bool), ((0, 0), (1, 1), (1, 1)))
-    shape = -1, int(math.sqrt(len(grid)))
+    shape = -1, math.isqrt(len(grid))
     image = hh.assemble_arrays(grid, shape, round_to_even=True)
     return image.repeat(3, axis=0).repeat(3, axis=1)
 
@@ -3371,17 +3371,18 @@ def day25(s, *, num_steps=2000):
   else:
     assert False
 
-  print('\n'.join(sorted(locations)))
-  print(sorted(inventory))  # or: issue_command('inv')
-  # ['astrolabe', 'candy cane', 'dark matter', 'hologram', 'klein bottle', 'ornament', 'tambourine', 'whirled peas']
-  for items2 in (set(l) for l in hh.powerset(inventory)):
+  if 0:
+    print('\n'.join(sorted(locations)))
+    print(sorted(inventory))  # or: issue_command('inv')
+    # ['astrolabe', 'candy cane', 'dark matter', 'hologram', 'klein bottle', 'ornament', 'tambourine', 'whirled peas']
+  for items2 in (set(l) for l in more_itertools.powerset(inventory)):
     for item in inventory:
       command = 'take' if item in items2 else 'drop'
       message = issue_command(f'{command} {item}')
     message = issue_command('north')
-    match = re.search(r'typing (\d+) on the keypad', message)
-    if match:
-      print(sorted(items2))  # ['astrolabe', 'hologram', 'klein bottle', 'tambourine']
+    if match := re.search(r'typing (\d+) on the keypad', message):
+      if 0:
+        print(sorted(items2))  # ['astrolabe', 'hologram', 'klein bottle', 'tambourine']
       return match.group(1)
 
 
