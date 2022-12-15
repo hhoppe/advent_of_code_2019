@@ -272,7 +272,7 @@ class NumbaMachine(Machine):
     super().__init__()
     # Preallocate extra memory because we do not grow it as in PyMachine.
     self.mem = np.concatenate((np.array(list(map(int, s.split(',')))),
-                               np.zeros(mem_extend, dtype=np.int64)))
+                               np.zeros(mem_extend, np.int64)))
 
   @staticmethod
   @numba_njit(cache=True)
@@ -344,7 +344,7 @@ class NumbaMachine(Machine):
   def run_until_need_input(self, input: list[int]) -> list[int]:
     assert not self.terminated
     self._pc, self._relative_base, self.terminated, output = self._run(
-        self.mem, self._pc, self._relative_base, np.array(input, dtype=np.int64))
+        self.mem, self._pc, self._relative_base, np.array(input, np.int64))
     return output
 
   def run_fully(self, input: list[int] | None = None) -> list[int]:
@@ -463,9 +463,7 @@ def day2a(s, *, part2=False):  # Original implementation before Machine.
     l[1] = a
     l[2] = b
     i = 0
-    while True:
-      if l[i] == 99:
-        break
+    while l[i] != 99:
       if l[i] == 1:
         l[l[i + 3]] = l[l[i + 1]] + l[l[i + 2]]
         i += 4
@@ -567,7 +565,7 @@ def day3a_part1(s):  # Abandonned slow version, using large 2D images.
   def rasterize(path: str):
     moves = path.split(',')
     position = origin.copy()
-    grid = np.full(shape, 0, dtype=np.uint8)
+    grid = np.full(shape, 0, np.uint8)
     count = 0
     for move in moves:
       vec = vec_from_move(move)
@@ -1123,7 +1121,7 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
   src_yx = best_yx
   grid[src_yx] = 0  # ignore source base asteroid
   vaporized = []
-  time_vaporized = np.full_like(grid, 0, dtype=np.int32)
+  time_vaporized = np.full_like(grid, 0, np.int32)
   count_vaporized = 0
   images = []
   while True:
@@ -1136,7 +1134,7 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
     # +X axis and increases towards +Y axis.
     angle = np.arctan2(dx, -dy)  # clockwise with angle 0.0 at top
     angle = np.where(angle < 0.0, angle + math.tau, angle)  # [0.0, tau)
-    t = np.full_like(grid, np.inf, dtype=np.float32)
+    t = np.full_like(grid, np.inf, np.float32)
     t[y, x] = angle
     for _, dst_y, dst_x in sorted(zip(angle, y, x)):
       if is_visible((dst_y, dst_x), src_yx, grid):
@@ -1694,10 +1692,7 @@ class ExploreMaze:
     return True
 
   def explore(self):
-    while True:
-      path = self.shortest_path(self.current_yx, until='unknown')
-      if not path:
-        break
+    while path := self.shortest_path(self.current_yx, until='unknown'):
       for yx in path[:-1]:
         check_eq(self.advance_to(yx), True)
       self.advance_to(path[-1])
@@ -2307,13 +2302,11 @@ def day18(s, *, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
       distance, yx, needed = to_visit.popleft()
       ch = grid[yx]
       if is_key(ch) and ch != current_key:
-        path = []
+        path = [yx]
         yx2 = yx
-        while True:
-          path.append(yx2)
-          if yx2 not in parent:
-            break
+        while yx2 in parent:
           yx2 = parent[yx2]
+          path.append(yx2)
         result[ch] = distance, frozenset(needed), path[::-1]
         needed = needed + [ch]
       elif is_door(ch):
@@ -2364,7 +2357,7 @@ def day18(s, *, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
     owned_key_color = 255, 160, 160
     active_color = 250, 120, 0
     while True:
-      image = np.array([cmap[e] for e in grid.flat], dtype=np.uint8).reshape(*grid.shape, 3)
+      image = np.array([cmap[e] for e in grid.flat], np.uint8).reshape(*grid.shape, 3)
       for key in keys.difference('0123'):
         image[yx_of_key[key]] = owned_key_color
       for key in current_keys:
@@ -2734,12 +2727,10 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
       while to_visit:
         lyx = to_visit.popleft()  # Heap not needed because all edge costs are 1.
         if lyx == dst_lyx:
-          path = []
-          while True:
-            path.append(lyx)
-            if lyx not in parent:
-              break
+          path = [lyx]
+          while lyx in parent:
             lyx = parent[lyx]
+            path.append(lyx)
           return path[-2::-1]  # (The path does not include src_lyx.)
         for dy, dx in self.NEIGHBORS:
           lyx2 = lyx[0], lyx[1] + dy, lyx[2] + dx
@@ -2770,9 +2761,7 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
         d, lyx = heapq.heappop(pq)
         if lyx == dst_lyx:
           path: list[tuple[int, int, int]] = []
-          while True:
-            if lyx not in parent:
-              return path[::-1]  # (The path does not include src_lyx.)
+          while lyx in parent:
             lyx2 = parent[lyx]
             if lyx[1:] in self.portal_portal_path[lyx2[1:]]:
               subpath = self.portal_portal_path[lyx2[1:]][lyx[1:]][::-1]
@@ -2781,6 +2770,7 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
               check_eq(self.opposite_portal(lyx2, max_level), lyx)
               path.append(lyx2)
             lyx = lyx2
+          return path[::-1]  # (The path does not include src_lyx.)
 
         # Nodes can get added to the priority queue multiple times.  We only
         # process a node the first time we remove it from the priority queue.
@@ -2814,7 +2804,7 @@ def day20(s, *, part2=False, max_level=0, visualize=False, speed=2, repeat=3):
       grid = self.grid.copy()
       grid[('A' <= grid) & (grid <= 'Z')] = 'A'
       cmap = {' ': (235,) * 3, '.': (255,) * 3, '#': (30,) * 3, 'A': (40, 40, 255)}
-      image0 = np.array([cmap[e] for e in grid.flat], dtype=np.uint8).reshape(
+      image0 = np.array([cmap[e] for e in grid.flat], np.uint8).reshape(
         *grid.shape, 3)
 
       def record_image(image):
@@ -3113,6 +3103,7 @@ class Deck:
     assert 0 <= pos < self.size
     # We solve for the card i that satisfies:
     #   pos == (start + step * i) % size   (with gcd(step, size) == 1)
+    # using a modular inverse.
     inv_step = pow(self.step, -1, mod=self.size)
     return (inv_step * (pos - self.start)) % self.size
 
@@ -3275,7 +3266,7 @@ puzzle.verify(1, day24_part1)  # ~1 ms.
 def day24_part2(s, *, num_steps=200, visualize=False):
   abs_level = num_steps // 2 + 1  # slow propagation
   # Levels [-abs_level, abs_level] map to grid[1 : abs_level * 2 + 2].
-  grid = np.zeros((abs_level * 2 + 3, 5, 5), dtype=np.int64)  # zero-padded
+  grid = np.zeros((abs_level * 2 + 3, 5, 5), np.int64)  # zero-padded
   grid[abs_level + 1] = hh.grid_from_string(s, {'.': 0, '#': 1})
   counts = np.empty_like(grid)
 
