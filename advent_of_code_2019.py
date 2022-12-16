@@ -90,14 +90,11 @@ INPUT_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}_input.txt'
 ANSWER_URL = f'data/{PROFILE}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
 # %%
-# (2) If URL not found, we may try adventofcode.com using a session cookie:
+# (2) If URL is not found, we may try adventofcode.com using a session cookie:
 if 0:
-  # See https://github.com/wimglenn/advent-of-code-data.
-  hh.run('rm -f ~/.config/aocd/token*')
-  # Fill-in the session cookie in the following:
-  hh.run(f"if [ '{PROFILE}' = 'google.Hugues_Hoppe.965276' ]; then mkdir -p ~/.config/aocd && echo 53616... >~/.config/aocd/token; fi")
-  hh.run(f"if [ '{PROFILE}' = 'github.hhoppe.1452460' ]; then mkdir -p ~/.config/aocd; echo 53616... >~/.config/aocd/token; fi")
-  hh.run('pip install -q advent-of-code-data')
+  # # !rm -f ~/.config/aocd/token*; mkdir -p ~/.config/aocd; echo 53616... >~/.config/aocd/token
+  # where "53616..." is the session cookie from "adventofcode.com" (valid 1 month).
+  hh.run('pip install -q advent-of-code-data')  # https://github.com/wimglenn/advent-of-code-data
   import aocd  # pylint: disable=unused-import # noqa
 
 # %%
@@ -1230,7 +1227,7 @@ def day11(s, *, part2=False, visualize_nth=0):
         video: Any = hh.grid_from_indices(self.tyx_white, pad=(0, 1, 1), dtype=bool)
         video = video.repeat(2, axis=1).repeat(2, axis=2)
         video = [video[0]] * 25 + list(video) + [video[-1]] * 25
-        media.show_video(video, codec='gif', fps=25)
+        media.show_video(video, codec='gif', fps=50)
 
   def test():
     small = [
@@ -1279,7 +1276,7 @@ day11_part2 = functools.partial(day11, part2=True)
 puzzle.verify(2, day11_part2)  # ~10 ms with NumbaMachine; ~40 ms without.
 
 # %%
-_ = day11(puzzle.input, visualize_nth=16)
+_ = day11(puzzle.input, visualize_nth=8)
 _ = day11_part2(puzzle.input, visualize_nth=1)
 
 # %% [markdown]
@@ -3299,7 +3296,8 @@ def day24_part2(s, *, num_steps=200, visualize=False):
   # print(grid.sum(axis=(1, 2)))  # Confirm that all levels are occupied.
   if visualize:
     images = [images[0]] * 30 + images + [images[-1]] * 90
-    media.show_video(images, codec='gif', fps=25)
+    if 0:  # ~1 MB embedded GIF.
+      media.show_video(images, codec='gif', fps=25)
 
   return np.count_nonzero(grid)
 
