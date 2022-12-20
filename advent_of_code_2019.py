@@ -58,6 +58,7 @@ import math
 import random
 import re
 import sys
+import types
 import textwrap
 from typing import Any
 
@@ -100,10 +101,11 @@ if 0:
 # %%
 try:
   import numba
-  numba_njit = numba.njit
 except ModuleNotFoundError:
   print('Package numba is unavailable.')
-  numba_njit = hh.noop_decorator
+  numba = sys.modules['numba'] = types.ModuleType('numba')
+  numba.njit = hh.noop_decorator
+using_numba = hasattr(numba, 'jit')
 
 # %%
 advent = advent_of_code_hhoppe.Advent(year=YEAR, input_url=INPUT_URL, answer_url=ANSWER_URL)
@@ -143,7 +145,7 @@ class Machine:
 
   @staticmethod
   def make(*args, **kwargs):
-    if 'numba' in globals():
+    if using_numba:
       return NumbaMachine(*args, **kwargs)
     return PyMachine(*args, **kwargs)
 
@@ -272,7 +274,7 @@ class NumbaMachine(Machine):
                                np.zeros(mem_extend, np.int64)))
 
   @staticmethod
-  @numba_njit(cache=True)
+  @numba.njit
   def _run(mem, pc, relative_base, input):
     input_index = 0
     output = []
@@ -636,26 +638,28 @@ puzzle.verify(2, day3b_part2)  # ~230 ms.
 
 
 # %%
-def day3(s, *, part2=False):  # Using numba to operate on dict is slow.
+# Using numba to operate on dict is slow.
 
-  @numba_njit(cache=True)
-  def rasterize(path):
-    y, x = 0, 0
-    counts = {}
-    count = 0
-    for dy, dx, magnitude in path:
-      for _ in range(magnitude):
-        count += 1
-        y, x = y + dy, x + dx
-        if (y, x) not in counts:
-          counts[y, x] = count
-    return counts
+@numba.njit
+def day3_rasterize(path):
+  y, x = 0, 0
+  counts = {}
+  count = 0
+  for dy, dx, magnitude in path:
+    for _ in range(magnitude):
+      count += 1
+      y, x = y + dy, x + dx
+      if (y, x) not in counts:
+        counts[y, x] = count
+  return counts
 
+
+def day3(s, *, part2=False):
   path1, path2 = s.splitlines()
   dyx_from_move = dict(L=(0, -1), R=(0, +1), U=(-1, 0), D=(+1, 0))
   counts1, counts2 = [
-      rasterize(np.array([[*dyx_from_move[move[:1]], int(move[1:])]
-                          for move in path.split(',')]))
+      day3_rasterize(np.array([[*dyx_from_move[move[:1]], int(move[1:])]
+                               for move in path.split(',')]))
       for path in [path1, path2]
   ]
 
@@ -1005,7 +1009,7 @@ puzzle = advent.puzzle(day=9)
 
 
 # %%
-def day8_test():
+def day9_test():
   # produces a copy of itself as output
   s = '109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99'
   expected = list(map(int, s.split(',')))
@@ -1020,7 +1024,7 @@ def day8_test():
   s = '104,1125899906842624,99'
   check_eq(Machine.make(s).run_fully()[0], 1125899906842624)
 
-day8_test()
+day9_test()
 
 
 # %%
@@ -1092,21 +1096,22 @@ s3 = """\
 
 
 # %%
+@numba.njit
+def is_visible(dst_yx, src_yx, grid):
+  yx = src_yx
+  vec = dst_yx[0] - yx[0], dst_yx[1] - yx[1]
+  gcd = math.gcd(*vec)  # (gcd(0, x) = x is good; gcd(0, 0) = 0)
+  vec = vec[0] // gcd, vec[1] // gcd
+  for _ in range(gcd - 1):  # ignore endpoints
+    yx = yx[0] + vec[0], yx[1] + vec[1]
+    if grid[yx]:
+      return False
+  return True
+
+
 def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=False):
   grid = hh.grid_from_string(s, {'.': 0, '#': 1})
   indices = list(zip(*grid.nonzero()))
-
-  @numba_njit(cache=True)
-  def is_visible(dst_yx, src_yx, grid):
-    yx = src_yx
-    vec = dst_yx[0] - yx[0], dst_yx[1] - yx[1]
-    gcd = math.gcd(*vec)  # (gcd(0, x) = x is good; gcd(0, 0) = 0)
-    vec = vec[0] // gcd, vec[1] // gcd
-    for _ in range(gcd - 1):  # ignore endpoints
-      yx = yx[0] + vec[0], yx[1] + vec[1]
-      if grid[yx]:
-        return False
-    return True
 
   def count_visible_from(yx):
     return sum(yx2 != yx and is_visible(yx2, yx, grid) for yx2 in indices)
@@ -1157,7 +1162,6 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
 
 
 check_eq(day10(s1, return_final=False), ((3, 4), 8))
-
 puzzle.verify(1, day10)  # ~150 ms with numba; ~250 ms without numba.
 
 day10_part2 = functools.partial(day10, part2=True)
@@ -1346,6 +1350,21 @@ puzzle.verify(1, day12)  # ~9 ms.
 # detected periods start at the initial step=0.
 
 # %%
+@numba.njit
+def day12_period_for_1d(initial_position):
+  position = initial_position.copy()
+  velocity = np.full_like(position, 0)
+  n = len(position)
+  for step in range(1, sys.maxsize):  # numba does not recognize "itertools.count(1)".
+    for i in range(n):
+      for j in range(n):
+        diff = position[j] - position[i]
+        velocity[i] += 1 if diff > 0 else -1 if diff < 0 else 0
+    position += velocity
+    if np.all(velocity == 0.0) and np.all(position == initial_position):
+      return step
+
+
 def day12_part2(s):
 
   # ~8 s without numba.
@@ -1364,23 +1383,8 @@ def day12_part2(s):
         return step
 
   # ~72 ms with numba; ~20 s without numba.
-  if 'numba' in globals():
-
-    @numba_njit(cache=True)
-    def period_for_1d_numba(initial_position):
-      position = initial_position.copy()
-      velocity = np.full_like(position, 0)
-      n = len(position)
-      for step in range(1, sys.maxsize):  # numba does not recognize "itertools.count(1)".
-        for i in range(n):
-          for j in range(n):
-            diff = position[j] - position[i]
-            velocity[i] += 1 if diff > 0 else -1 if diff < 0 else 0
-        position += velocity
-        if np.all(velocity == 0.0) and np.all(position == initial_position):
-          return step
-
-    period_for_1d = period_for_1d_numba  # noqa
+  if using_numba:
+    period_for_1d = day12_period_for_1d  # noqa
 
   initial_position = np.array(re.findall(r'<x=(.*), y=(.*), z=(.*)>', s)).astype(np.int64)
   periods = [period_for_1d(initial_position[:, coord]) for coord in range(3)]
@@ -1864,6 +1868,15 @@ if 0:
 # of 500_000 and time complexity of 50_000_000.
 
 # %%
+@numba.njit
+def day16_fft_transform2_helper(l, num_phases=100):
+  mod10 = np.arange(20) % 10
+  for _ in range(num_phases):
+    total = 0
+    for i in range(len(l) - 1, -1, -1):
+      # l[i] = total = (l[i] + total) % 10
+      l[i] = total = mod10[l[i] + total]
+
 def day16_part2(s, *, repeat_input=10_000):
 
   def fft_transform2_helper(l, num_phases=100):
@@ -1875,18 +1888,8 @@ def day16_part2(s, *, repeat_input=10_000):
         np.mod(l, 10, out=l)
     np.mod(l, 10, out=l)
 
-  if 'numba' in globals():
-
-    @numba_njit(cache=True)
-    def fft_transform2_helper_numba(l, num_phases=100):
-      mod10 = np.arange(20) % 10
-      for _ in range(num_phases):
-        total = 0
-        for i in range(len(l) - 1, -1, -1):
-          # l[i] = total = (l[i] + total) % 10
-          l[i] = total = mod10[l[i] + total]
-
-    fft_transform2_helper = fft_transform2_helper_numba  # noqa
+  if using_numba:
+    fft_transform2_helper = day16_fft_transform2_helper  # noqa
 
   index = int(s[:7])
   l = list(map(int, s.strip())) * repeat_input
