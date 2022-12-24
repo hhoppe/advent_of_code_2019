@@ -78,6 +78,7 @@ hh.start_timing_notebook_cells()
 
 # %%
 YEAR = 2019
+SHOW_BIG_MEDIA = False
 
 # %%
 # (1) To obtain puzzle inputs and answers, we first try these paths/URLs:
@@ -1097,7 +1098,7 @@ s3 = """\
 
 # %%
 @numba.njit
-def is_visible(dst_yx, src_yx, grid):
+def day10_is_visible(dst_yx, src_yx, grid):
   yx = src_yx
   vec = dst_yx[0] - yx[0], dst_yx[1] - yx[1]
   gcd = math.gcd(*vec)  # (gcd(0, x) = x is good; gcd(0, 0) = 0)
@@ -1114,7 +1115,7 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
   indices = list(zip(*grid.nonzero()))
 
   def count_visible_from(yx):
-    return sum(yx2 != yx and is_visible(yx2, yx, grid) for yx2 in indices)
+    return sum(yx2 != yx and day10_is_visible(yx2, yx, grid) for yx2 in indices)
 
   best_count, best_yx = max((count_visible_from(yx), yx) for yx in indices)
   if not part2:
@@ -1139,7 +1140,7 @@ def day10(s, *, part2=False, return_final=True, index_vaporized=199, visualize=F
     t = np.full_like(grid, np.inf, np.float32)
     t[y, x] = angle
     for _, dst_y, dst_x in sorted(zip(angle, y, x)):
-      if is_visible((dst_y, dst_x), src_yx, grid):
+      if day10_is_visible((dst_y, dst_x), src_yx, grid):
         count_vaporized += 1
         time_vaporized[dst_y, dst_x] = count_vaporized
         sweep_vaporized.append((dst_y, dst_x))
@@ -1635,7 +1636,7 @@ puzzle = advent.puzzle(day=15)
 
 
 # %%
-class ExploreMaze:
+class Day15ExploreMaze:
   ORIGIN = 0, 0  # yx
   NEIGHBORS = (0, 1), (1, 0), (0, -1), (-1, 0)
 
@@ -1767,22 +1768,22 @@ class ExploreMaze:
 
 
 def day15(s):
-  return ExploreMaze(s).compute()
+  return Day15ExploreMaze(s).compute()
 
 puzzle.verify(1, day15)  # ~32 ms.
 
 # %%
-_ = ExploreMaze(puzzle.input).compute(visualize=True)
+_ = Day15ExploreMaze(puzzle.input).compute(visualize=True)
 
 
 # %%
 def day15_part2(s):
-  return ExploreMaze(s).farthest_distance_from_destination()
+  return Day15ExploreMaze(s).farthest_distance_from_destination()
 
 puzzle.verify(2, day15_part2)  # ~36 ms.
 
 # %%
-_ = ExploreMaze(puzzle.input).farthest_distance_from_destination(visualize=True)
+_ = Day15ExploreMaze(puzzle.input).farthest_distance_from_destination(visualize=True)
 
 # %% [markdown]
 # <a name="day16"></a>
@@ -1968,7 +1969,7 @@ s1 = """\
 # %%
 def day17_parse_scaffold_grid(s):
   grid = hh.grid_from_string(s, {'.': 0, '#': 1, '^': 2})
-  start = tuple(np.array(np.nonzero(grid == 2)).T[0])
+  start, = zip(*np.nonzero(grid == 2))
   return grid, start
 
 def day17_test():
@@ -2115,6 +2116,8 @@ def day17_part2(s, *, visualize=False):
 
 
 puzzle.verify(2, day17_part2)  # ~9 ms.
+
+# %%
 _ = day17_part2(puzzle.input, visualize=True)
 
 # %% [markdown]
@@ -2288,7 +2291,7 @@ def day18(s, *, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
     grid[[y-1, y-1, y+1, y+1], [x-1, x+1, x-1, x+1]] = '@'
   current_keys = tuple(str(i) for i in range(np.sum(grid == '@')))
   grid[grid == '@'] = current_keys
-  yx_of_key = {ch: (y, x) for (y, x), ch in np.ndenumerate(grid) if is_key(ch)}
+  yx_of_key = {ch: yx for yx, ch in np.ndenumerate(grid) if is_key(ch)}
 
   @functools.lru_cache(maxsize=None)
   def possible_paths(current_key):  # Returns {key: (distance, needed, path)}.
@@ -2453,6 +2456,8 @@ def day19_part1(s, *, shape=(50, 50), visualize=False):
 
 
 puzzle.verify(1, day19_part1)  # ~340 ms with NumbaMachine; ~3400 ms without.
+
+# %%
 _ = day19_part1(puzzle.input, visualize=True)
 
 
@@ -3299,8 +3304,7 @@ def day24_part2(s, *, num_steps=200, visualize=False):
   # print(grid.sum(axis=(1, 2)))  # Confirm that all levels are occupied.
   if visualize:
     images = [images[0]] * 30 + images + [images[-1]] * 90
-    if 0:  # ~1 MB embedded GIF.
-      media.show_video(images, codec='gif', fps=25)
+    media.show_video(images, codec='gif', fps=25)  # ~1 MB embedded GIF.
 
   return np.count_nonzero(grid)
 
@@ -3308,7 +3312,8 @@ check_eq(day24_part2(s1, num_steps=10), 99)
 puzzle.verify(2, day24_part2)  # ~36 ms.
 
 # %%
-_ = day24_part2(puzzle.input, visualize=True)  # ~3 s.
+if SHOW_BIG_MEDIA:
+  _ = day24_part2(puzzle.input, visualize=True)  # ~3 s.
 
 # %% [markdown]
 # <a name="day25"></a>
@@ -3398,7 +3403,7 @@ if 0:  # Compute min execution times over several calls.
 # %%
 if 1:  # Look for unwanted pollution of namespace.
   print(textwrap.fill(' '.join(name for name, value in globals().items() if not (
-      name.startswith(('_', 'day')) or name in _ORIGINAL_GLOBALS))))
+      name.startswith(('_', 'day', 'Day')) or name in _ORIGINAL_GLOBALS))))
 
 # %%
 if 0:  # Save puzzle inputs and answers to a compressed archive for downloading.
