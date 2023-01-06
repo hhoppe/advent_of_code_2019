@@ -981,11 +981,9 @@ def day8(s, *, part2=False):
   result2 = np.pad(result, 1)
   media.show_image(result2, height=result2.shape[0] * 2)
 
-  s = hh.string_from_grid(result, {0: '.', 1: '#'})
-  answer = advent_of_code_ocr.convert_6(s)  # e.g. 'EHRUE'
-  if 0:
-    print(answer)
-  return answer
+  s2 = hh.string_from_grid(result, {0: '.', 1: '#'})
+  hh.display_html(s2.replace('.', '⬜').replace('#', '⬛').replace('\n', '<br/>'))
+  return advent_of_code_ocr.convert_6(s2)  # e.g. 'EHRUE'
 
 
 puzzle.verify(1, day8)  # ~5 ms.
@@ -1268,11 +1266,10 @@ def day11(s, *, part2=False, visualize_nth=0):
     return painter.num_painted()
 
   grid = painter.visualized_grid()
-  s = hh.string_from_grid(grid, {0: '.', 1: '#'})
-  answer = advent_of_code_ocr.convert_6(s)  # e.g. 'BLCZCJLZ'
-  if 0 and not visualize_nth:
-    print(answer)
-  return answer
+  s2 = hh.string_from_grid(grid, {0: '.', 1: '#'})
+  if not visualize_nth:
+    hh.display_html(s2.replace('.', '⬜').replace('#', '⬛').replace('\n', '<br/>'))
+  return advent_of_code_ocr.convert_6(s2)  # e.g. 'BLCZCJLZ'
 
 
 puzzle.verify(1, day11)  # ~50 ms with NumbaMachine; ~400 ms without.
@@ -1317,7 +1314,7 @@ s2 = """\
 
 # %%
 def day12(s, *, num_steps=1000, verbose=False):
-  position = np.array(re.findall(r'<x=(.*), y=(.*), z=(.*)>', s)).astype(np.int64)
+  position = np.array(re.findall(r'<x=(.*), y=(.*), z=(.*)>', s), np.int64)
   velocity = np.full_like(position, 0)
 
   for step in range(num_steps):
@@ -1387,7 +1384,7 @@ def day12_part2(s):
   if using_numba:
     period_for_1d = day12_period_for_1d  # noqa
 
-  initial_position = np.array(re.findall(r'<x=(.*), y=(.*), z=(.*)>', s)).astype(np.int64)
+  initial_position = np.array(re.findall(r'<x=(.*), y=(.*), z=(.*)>', s), np.int64)
   periods = [period_for_1d(initial_position[:, coord]) for coord in range(3)]
   return np.lcm.reduce(periods)
 
@@ -2291,7 +2288,8 @@ def day18(s, *, part2=False, visualize=False, fps=50, size=4, speed=1, tail=1):
     grid[[y-1, y-1, y+1, y+1], [x-1, x+1, x-1, x+1]] = '@'
   current_keys = tuple(str(i) for i in range(np.sum(grid == '@')))
   grid[grid == '@'] = current_keys
-  yx_of_key = {ch: yx for yx, ch in np.ndenumerate(grid) if is_key(ch)}
+  yx_of_key: dict[str, tuple[int, int]] = {
+      ch: yx for yx, ch in np.ndenumerate(grid) if is_key(ch)}  # type: ignore[misc]
 
   @functools.lru_cache(maxsize=None)
   def possible_paths(current_key):  # Returns {key: (distance, needed, path)}.
@@ -3258,7 +3256,7 @@ def day24_part1(s):
     counts[:, :4] += grid[:, 1:]
     counts[:, 1:] += grid[:, :4]
     grid = ((counts == 1) | ((grid == 0) & (counts == 2))).astype(int)
-    t = tuple(grid.reshape(-1))
+    t = tuple(grid.flat)
     if t in visited:
       return sum(value * 2**i for i, value in enumerate(t))
     visited.add(t)
@@ -3275,13 +3273,13 @@ def day24_part2(s, *, num_steps=200, visualize=False):
   grid[abs_level + 1] = hh.grid_from_string(s, {'.': 0, '#': 1})
   counts = np.empty_like(grid)
 
-  def flattened(grid):
+  def make_image(grid):
     grid = np.pad(grid.astype(bool), ((0, 0), (1, 1), (1, 1)))
     shape = -1, math.isqrt(len(grid))
     image = hh.assemble_arrays(grid, shape, round_to_even=True)
     return image.repeat(3, axis=0).repeat(3, axis=1)
 
-  images = [flattened(grid)]
+  images = [make_image(grid)]
   for _ in range(num_steps):
     counts[:] = 0
     counts[1:-1, :4, :] += grid[1:-1, 1:, :]
@@ -3299,7 +3297,7 @@ def day24_part2(s, *, num_steps=200, visualize=False):
     counts[:, 2, 2] = 0  # This absent center cell always remains inactive.
     grid = (counts == 1) | ((grid == 0) & (counts == 2))
     if visualize:
-      images.append(flattened(grid))
+      images.append(make_image(grid))
 
   # print(grid.sum(axis=(1, 2)))  # Confirm that all levels are occupied.
   if visualize:
